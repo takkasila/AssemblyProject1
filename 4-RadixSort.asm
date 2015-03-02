@@ -235,5 +235,91 @@ msd_radix_sort:
 			jr $ra
 
 partition:
+# get arguments through register
+# t0 = *first
+# t1 = *last
+# t2 = msb
+# store result in $v0
+
+	move $t3, $t0	# f = first
+	move $t4, $t1	# l = last
+
+	loopWhileLF:
+
+	# if(f<l)
+	slt $t5, $t3, $t4
+	beq $t5, $0, finishLoopWhileLF
+
+		loopFIncreas:
+
+			# get *f
+			lw $t6, 0($t3)	# t6 = *f
+
+			# shift *f right for msb
+			srlv $t6, $t6, $t2	# t6 = *f >> msb
+
+			andi $t6, $t6, 0x1	# t6 = (*f >> msb) & 0x1
+			bne $t6, $0, finishLoopFIncreas	# if(!=0) -> exit
+
+			# f < last
+			slt $t6, $t3, $t1
+			beq $t6, $0, finishLoopFIncreas
+
+			addiu $t3, $t3, 4	# f++ (int pointer)
+			
+			j loopFIncreas
+
+		finishLoopFIncreas:
+
+		loopLdecrease:
+
+			# get *l
+			lw $t6, 0($t4)
+
+			srlv $t6, $t6, $t2	# t6 = *l >> msb
+
+			andi $t6, $t6, 0x1	# t6 = (*l >> msb) & 0x1
+
+			li $t7, 1
+			bne $t6, $t7, finishLoopLdecrease
+
+			# first < l
+			slt $t6, $t0, $t4
+			beq $t6, $0, finishLoopLdecrease
+
+			addiu $t4, $t4, -4
+
+
+			j loopLdecrease
+
+		finishLoopLdecrease:
+
+		# if(f<l)
+		slt $t6, $t3, $t4
+		beq $t6, $0, notLessThan
+
+		lessThan:
+			# swap *l, *f
+			lw $t6, 0($t3)	# t6 = *f
+			move $t5, $t6	# t5 = temp = *f
+
+			# *f = *l
+			# get *l
+			lw $t7, 0($t4)	# t7 = *l
+			# store *l to f
+			sw $t7, 0($t3)	# *f = *l
+
+			# *l = temp
+			# store temp to l
+			sw $t5, 0($t4)
+
+		notLessThan:
+
+		j loopWhileLF
+
+	finishLoopWhileLF:
+
+	# store l to $v0
+	move $v0, $t4
 
 	jr $ra
