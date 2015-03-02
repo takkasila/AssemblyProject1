@@ -11,7 +11,7 @@ sorted: .asciiz "Sorted\n"
 
 .globl main
 
-main:
+main:	# tested
 
 	la $s0, data	#s0 = data array
 	li $s1, 0		#s1 = i
@@ -19,8 +19,28 @@ main:
 
 	jal printDataArr
 
-	# todo
+	# passing argument on stack
+	move $fp, $sp
+	# first
+	addiu $sp, $sp, -4
+	la $t0, 0($s0)		# data
+	sw $t0, 0($sp)
+
+	# last
+	addiu $sp, $sp, -4
+	addu $t0, $t0, $s2
+	addiu $t0, $t0, -1	# data+N-1
+	sw $t0, 0($sp)
+
+	# msb : Most Significant Bit
+	addiu $sp, $sp, -4
+	li $t0, 31			# 31
+	sw $t0, 0($sp)
+
 	jal msd_radix_sort
+
+	# free stack
+	move $sp, $fp
 
 	la $a0, newLine	# print \n\n
 	li $v0, 4
@@ -74,5 +94,146 @@ printDataArr:	# tested
 		jr $ra
 
 msd_radix_sort:
+
+	# setup return address
+	addiu $sp, $sp, -8
+	sw $ra, 4($sp)
+	sw $fp, 0($sp)
+	move $fp, $sp
+
+	# get parameters
+	lw $t0, 16($fp)	# t0 = *first
+	lw $t1, 12($fp)	# t1 = *last
+	lw $t2, 8($fp)	# t2 = msb
+
+	# if(first < last)
+	slt $t3, $t0, $t1
+	beq $t3, $0, finish_msd_radix_sort
+
+		# if(msb >= 0)
+		bltz $t2, finish_msd_radix_sort
+
+			# int *mid -> t3
+			# $t3 = partition(first, last, msb)
+			# save temp register to stack
+			li $a0, 0
+			jal store_arguments
+
+			# pass parameter through temp register
+			jal partition	# will result in $v0
+			move $t3, $v0	
+
+			# load back true parameters
+			li $a0, 0
+			jal load_arguments
+
+			addiu $t2, $t2, -1	# msb --
+
+			# sort left partition
+				li $a0, 1
+				jal store_arguments
+
+				# passing arguments on stack
+				addiu $sp, $sp, -12
+					
+					# first
+					sw $t0, 8($sp)
+
+					# mid
+					sw $t3, 4($sp)
+
+					# msb
+					sw $t2, 0($sp)
+
+					jal msd_radix_sort
+
+				# free stack arguments
+				addiu $sp, $sp, 12
+
+				li $a0, 1
+				jal load_arguments
+
+			# sort right partition
+				li $a0, 1
+				jal store_arguments
+
+				# passing arguments on stack
+				addiu $sp, $sp, -12
+
+					# mid+1
+					addiu $t4, $t3, 1	# t4 = mid+1
+					sw $t4, 8($sp)
+
+					# last
+					sw $t1, 4($sp)
+
+					# msb
+					sw $t2, 0($sp)
+
+					jal msd_radix_sort
+
+				# free stack arguments
+				addiu $sp, $sp, 12
+
+				li $a0, 1
+				jal load_arguments
+
+	finish_msd_radix_sort:
+
+		lw $ra, 4($fp)
+		lw $fp, 0($fp)
+		addiu $sp, $sp, 8
+
+		jr $ra
+
+	# utility purpose
+	store_arguments:
+
+		# if($a0 == 0) -> not store $t3
+		# else -> store $t3
+		bgtz $a0, storeT3
+
+		not_storeT3:
+
+			addiu $sp, $sp, -12
+			sw $t0, 8($sp)
+			sw $t1, 4($sp)
+			sw $t2, 0($sp)
+			jr $ra
+
+		storeT3:
+
+			addiu $sp, $sp, -16
+			sw $t0, 12($sp)
+			sw $t1, 8($sp)
+			sw $t2, 4($sp)
+			sw $t3, 0($sp)
+			jr $ra
+
+
+	load_arguments:
+
+		# if($a0 == 0) -> not store $t3
+		# else -> store $t3
+		bgtz $a0, loadT3
+
+		not_loadT3:
+
+			lw $t0, 8($sp)
+			lw $t1, 4($sp)
+			lw $t2, 0($sp)
+			addiu $sp, $sp, 12
+			jr $ra
+
+		loadT3:
+
+			lw $t0, 12($sp)
+			lw $t1, 8($sp)
+			lw $t2, 4($sp)
+			lw $t3, 0($sp)
+			addiu $sp, $sp, 16
+			jr $ra
+
+partition:
 
 	jr $ra
