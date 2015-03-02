@@ -28,8 +28,9 @@ main:	# tested
 
 	# last
 	addiu $sp, $sp, -4
-	addu $t0, $t0, $s2
-	addiu $t0, $t0, -1	# data+N-1
+	sll $s3, $s2, 2		# N*4
+	addu $t0, $t0, $s3
+	addiu $t0, $t0, -4	# data+N-1
 	sw $t0, 0($sp)
 
 	# msb : Most Significant Bit
@@ -240,7 +241,9 @@ partition:
 # t1 = *last
 # t2 = msb
 # store result in $v0
-
+	
+	addiu $t8, $t8, 1
+	
 	move $t3, $t0	# f = first
 	move $t4, $t1	# l = last
 
