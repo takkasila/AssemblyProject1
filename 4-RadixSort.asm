@@ -62,37 +62,38 @@ printDataArr:	# tested
 	slt $s3, $s1, $s2
 	beq $s3, $0, finishPrintDataArr	#if(i>=N) -> exit
 
-	la $a0, printData1
-	li $v0, 4
-	syscall
+		la $a0, printData1
+		li $v0, 4
+		syscall
 
-	move $a0, $s1
-	li $v0, 1
-	syscall
+		move $a0, $s1	# print i
+		li $v0, 1
+		syscall
 
-	la $a0, printData2
-	li $v0, 4
-	syscall
+		la $a0, printData2
+		li $v0, 4
+		syscall
 
-	sll $s3, $s1, 2		# s3 = i*4
-	addu $s3, $s3, $s0	# s3 = address of data[i]
-	lw $s4, 0($s3)		# s4 = data[i]
-	move $a0, $s4		# print data[i]
-	li $v0, 1
-	syscall
+		sll $s3, $s1, 2		# s3 = i*4
+		addu $s3, $s3, $s0	# s3 = address of data[i]
+		lw $s4, 0($s3)		# s4 = data[i]
+		move $a0, $s4		# print data[i]
+		li $v0, 1
+		syscall
 
-	la $a0, newLine
-	li $v0, 4
-	syscall
+		la $a0, newLine
+		li $v0, 4
+		syscall
 
-	#update i
-	addiu $s1, $s1, 1
+		#update i
+		addiu $s1, $s1, 1
 
-	j printDataArr
+		j printDataArr
 
-	finishPrintDataArr:
+finishPrintDataArr:
 
-		jr $ra
+jr $ra
+
 
 msd_radix_sort:
 
@@ -122,6 +123,7 @@ msd_radix_sort:
 
 			# pass parameter through temp register
 			jal partition	# will result in $v0
+			
 			move $t3, $v0	
 
 			# load back true parameters
@@ -162,7 +164,7 @@ msd_radix_sort:
 				addiu $sp, $sp, -12
 
 					# mid+1
-					addiu $t4, $t3, 1	# t4 = mid+1
+					addiu $t4, $t3, 4	# t4 = mid+1
 					sw $t4, 8($sp)
 
 					# last
@@ -242,8 +244,6 @@ partition:
 # t2 = msb
 # store result in $v0
 	
-	addiu $t8, $t8, 1
-	
 	move $t3, $t0	# f = first
 	move $t4, $t1	# l = last
 
@@ -264,13 +264,12 @@ partition:
 			andi $t6, $t6, 0x1	# t6 = (*f >> msb) & 0x1
 			bne $t6, $0, finishLoopFIncreas	# if(!=0) -> exit
 
-			# f < last
-			slt $t6, $t3, $t1
-			beq $t6, $0, finishLoopFIncreas
+				# f < last
+				slt $t6, $t3, $t1
+				beq $t6, $0, finishLoopFIncreas
 
-			addiu $t3, $t3, 4	# f++ (int pointer)
-			
-			j loopFIncreas
+					addiu $t3, $t3, 4	# f++ (int pointer)
+					j loopFIncreas
 
 		finishLoopFIncreas:
 
@@ -286,14 +285,12 @@ partition:
 			li $t7, 1
 			bne $t6, $t7, finishLoopLdecrease
 
-			# first < l
-			slt $t6, $t0, $t4
-			beq $t6, $0, finishLoopLdecrease
+				# first < l
+				slt $t6, $t0, $t4
+				beq $t6, $0, finishLoopLdecrease
 
-			addiu $t4, $t4, -4
-
-
-			j loopLdecrease
+					addiu $t4, $t4, -4
+					j loopLdecrease
 
 		finishLoopLdecrease:
 
@@ -321,7 +318,6 @@ partition:
 		j loopWhileLF
 
 	finishLoopWhileLF:
-
 	# store l to $v0
 	move $v0, $t4
 
