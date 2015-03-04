@@ -62,18 +62,18 @@ countSort:
 		slt $t5, $t4, $t1	#if(i < RANGE + 1) -> t5 = 1
 		beq $t5, $0, finishInitializeCountArr
 
-		# get count[i]
-		sll $t5, $t4, 2	# i << 2
-		addu $t5, $t5, $t2	# address a[i]
-		sw $0, 0($t5)	# a[i] = 0
+			# get count[i]
+			sll $t5, $t4, 2	# i << 2
+			addu $t5, $t5, $t2	# address a[i]
+			sw $0, 0($t5)	# a[i] = 0
 
-		# update i
-		addiu $t4, $t4, 1
-		sw $t4, 0($t3)	# store i to memory
+			# update i
+			addiu $t4, $t4, 1
+			sw $t4, 0($t3)	# store i to memory
 
-		j initializeCountArr
+			j initializeCountArr
 
-		finishInitializeCountArr:
+	finishInitializeCountArr:
 
 
 	# set i = 0
@@ -90,19 +90,19 @@ countSort:
 
 		beq $t5, $0, finishStoreCountOfStrArr #if (str[i] == 0) -> exit
 
-		sll $t7, $t5, 2	# t7 = str[i]*4
-		addu $t7, $t7, $t2	# t7 = address count[str[i]]
-		lw $t6, 0($t7)		# t6 = count[str[i]]
-		addiu $t6, $t6, 1	# count ++
-		sw $t6, 0($t7)		# store count back to memory
+			sll $t7, $t5, 2		# t7 = str[i]*4
+			addu $t7, $t7, $t2	# t7 = address count[str[i]]
+			lw $t6, 0($t7)		# t6 = count[str[i]]
+			addiu $t6, $t6, 1	# count ++
+			sw $t6, 0($t7)		# store count back to memory
 
-		#update i
-		addiu $t1, $t1, 1
-		sw $t1, 0($t3)
+			#update i
+			addiu $t1, $t1, 1
+			sw $t1, 0($t3)
 
-		j storeCountOfStrArr
+			j storeCountOfStrArr
 
-		finishStoreCountOfStrArr:
+	finishStoreCountOfStrArr:
 
 
 	# set i = 1
@@ -115,29 +115,29 @@ countSort:
 		slt $t4, $s2, $t1	# if(RANGE < i) --> t4 = 1
 		bne $t4, $0, finishUpdateCountArr # if(t4 != 0) -> exit
 
-		# get count[i-1]
-		addiu $t1, $t1, -1	# i--
-		sll $t4, $t1, 2	# t4 = i*4
-		addu $t4, $t4, $t2	# t4 = address count[i-1]
-		lw $t4, 0($t4)	# t4 = count[i-1]
+			# get count[i-1]
+			addiu $t1, $t1, -1	# i--
+			sll $t4, $t1, 2	# t4 = i*4
+			addu $t4, $t4, $t2	# t4 = address count[i-1]
+			lw $t4, 0($t4)	# t4 = count[i-1]
 
-		# get count[i]
-		addiu $t1, $t1, 1	# i++
-		sll $t5, $t1, 2	# t5 = i*4
-		addu $t5, $t2, $t5	# t5 = address count[i]
-		lw $t6, 0($t5)	# t6 = count[i]
+			# get count[i]
+			addiu $t1, $t1, 1	# i++
+			sll $t5, $t1, 2	# t5 = i*4
+			addu $t5, $t2, $t5	# t5 = address count[i]
+			lw $t6, 0($t5)	# t6 = count[i]
 
-		# count[i] += count[i-1]
-		addu $t6, $t6, $t4
-		sw $t6, 0($t5)
+			# count[i] += count[i-1]
+			addu $t6, $t6, $t4
+			sw $t6, 0($t5)
 
-		#update
-		addiu $t1, $t1, 1	# i++
-		sw $t1, 0($t3)
+			#update
+			addiu $t1, $t1, 1	# i++
+			sw $t1, 0($t3)
 
-		j updateCountArr
+			j updateCountArr
 
-		finishUpdateCountArr:
+	finishUpdateCountArr:
 
 
 	# set i = 0
@@ -154,28 +154,28 @@ countSort:
 
 		beq $t5, $0, finishBuildOutputArr #if (str[i] == 0) -> exit
 
-		# get count[str[i]]
-		sll $t6, $t5, 2	# t6 = str[i] * 4
-		addu $t6, $t6, $t2	# t6 = address count[str[i]]
-		lw $t7, 0($t6)	# t7 = count[str[i]]
+			# get count[str[i]]
+			sll $t6, $t5, 2	# t6 = str[i] * 4
+			addu $t6, $t6, $t2	# t6 = address count[str[i]]
+			lw $t7, 0($t6)	# t7 = count[str[i]]
 
-		addiu $t7, $t7, -1	# t7 = count[str[i]]-1
+			addiu $t7, $t7, -1	# t7 = count[str[i]]-1
 
-		# get output[count[str[i]]-1] address
-		addu $t8, $t7, $t0	# t8 = address of output[count[str[i]]-1]
+			# get output[count[str[i]]-1] address
+			addu $t8, $t7, $t0	# t8 = address of output[count[str[i]]-1]
 
-		sb $t5, 0($t8)	# output[count[str[i]]-1] = str[i]
+			sb $t5, 0($t8)	# output[count[str[i]]-1] = str[i]
 
-		# count[str[i]] = count[str[i]] -1
-		sw $t7, 0($t6)
+			# count[str[i]] = count[str[i]] -1
+			sw $t7, 0($t6)
 
-		# update i
-		addiu $t1, $t1, 1
-		sw $t1, 0($t3)
+			# update i
+			addiu $t1, $t1, 1
+			sw $t1, 0($t3)
 
-		j buildOutputArr
+			j buildOutputArr
 
-		finishBuildOutputArr:
+	finishBuildOutputArr:
 
 	# set i = 0
 	sw $0, 0($t3)
@@ -191,19 +191,19 @@ countSort:
 
 		beq $t5, $0, finishCopyOutputToStr #if (str[i] == 0) -> exit
 
-		# get output[i]
-		addu $t6, $t0, $t1	# t6 = address of output[i]
-		lbu $t6, 0($t6)		# t6 = output[i]
+			# get output[i]
+			addu $t6, $t0, $t1	# t6 = address of output[i]
+			lbu $t6, 0($t6)		# t6 = output[i]
 
-		sb $t6, 0($t4)	# str[i] = output[i]
+			sb $t6, 0($t4)	# str[i] = output[i]
 
-		# update i
-		addiu $t1, $t1, 1
-		sw $t1, 0($t3)
+			# update i
+			addiu $t1, $t1, 1
+			sw $t1, 0($t3)
 
-		j copyOutputToStr
+			j copyOutputToStr
 
-		finishCopyOutputToStr:
+	finishCopyOutputToStr:
 
 	# free i
 	addiu $sp, $sp, 4

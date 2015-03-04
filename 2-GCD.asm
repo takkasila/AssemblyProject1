@@ -22,6 +22,7 @@ main:
 	jal gcd	#answer will result in $v0
 
 	move $sp, $fp	# roll back stack
+					# another way to free stack
 
 	move $a0, $v0
 	li $v0, 1
